@@ -4,6 +4,7 @@ import { StorageSuggestions } from '../typings/Storage';
 
 class AutoComplete {
   private static keyLocalStorage = 'searches';
+  private static readonly MAX_CACHE_SECONDS = 30;
 
   public static readonly defaultValue: Query = {
     products: [],
@@ -32,7 +33,9 @@ class AutoComplete {
   }
 
   private generateCache(): StorageSuggestions {
-    const afterSomeTime = this.generateExpiresAtAfterSomeSeconds(30);
+    const afterSomeTime = this.generateExpiresAtAfterSomeSeconds(
+      AutoComplete.MAX_CACHE_SECONDS,
+    );
     const storageSearch: StorageSuggestions = {
       data: new Map(),
       expiresAt: afterSomeTime,
@@ -40,6 +43,27 @@ class AutoComplete {
     };
 
     return storageSearch;
+  }
+
+  private addToCache(storageSearch: StorageSuggestions) {
+    const storageSearchStringCache = JSON.stringify(
+      storageSearch,
+      (key, value) => {
+        if (value instanceof Map) {
+          return Array.from(value.entries());
+        }
+
+        if (value instanceof Set) {
+          return Array.from(value);
+        }
+
+        return value;
+      },
+    );
+    localStorage.setItem(
+      AutoComplete.keyLocalStorage,
+      storageSearchStringCache,
+    );
   }
 
   private getOrGenerateCache() {
@@ -79,24 +103,7 @@ class AutoComplete {
      */
     const storageSearch = this.generateCache();
 
-    const storageSearchStringCache = JSON.stringify(
-      storageSearch,
-      (key, value) => {
-        if (value instanceof Map) {
-          return Array.from(value.entries());
-        }
-
-        if (value instanceof Set) {
-          return Array.from(value);
-        }
-
-        return value;
-      },
-    );
-    localStorage.setItem(
-      AutoComplete.keyLocalStorage,
-      storageSearchStringCache,
-    );
+    this.addToCache(storageSearch);
 
     return storageSearch;
   }
@@ -126,6 +133,10 @@ class AutoComplete {
 
       const response = await fetch(url.href);
       const value: Query = await response.json();
+
+      this.latestSearches.data.set(query, value);
+      this.latestSearches.searchIndexes.add(query);
+      this.addToCache(this.latestSearches);
 
       return value;
     } catch (e) {
