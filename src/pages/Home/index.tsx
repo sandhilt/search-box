@@ -11,7 +11,7 @@ import { Button, Input, Datalist, Title, Form } from '../../components';
 import Query from '../../typings/Query';
 import debounce from '../../utils/debounce';
 import { Container, WrapperBox } from './styles';
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
+import { faSearch, faTrash } from '@fortawesome/free-solid-svg-icons';
 import AutoComplete from '../../services/AutoComplete';
 
 function Home(): JSX.Element {
@@ -43,14 +43,13 @@ function Home(): JSX.Element {
   );
 
   const handleDataSuggestions = useCallback(async () => {
-    console.log('rodou');
     const text = inputRef.current?.value.trim();
 
     if (!text || text.length === 0) {
       setQuery(undefined);
     }
 
-    if (text && text !== query) {
+    if (text && text.length >= 3 && text !== query) {
       setQuery(text);
     }
   }, [query]);
@@ -59,6 +58,11 @@ function Home(): JSX.Element {
     () => debounce(handleDataSuggestions, 2000),
     [handleDataSuggestions],
   );
+
+  const handleClear = () => {
+    setQuery(undefined);
+    setData(AutoComplete.defaultValue);
+  };
 
   return (
     <Container>
@@ -76,6 +80,9 @@ function Home(): JSX.Element {
             required
           ></Input>
           <Datalist id="suggestions-list" options={data.suggestions} />
+          <Button type="reset" onClick={handleClear}>
+            <FontAwesomeIcon icon={faTrash} /> Limpar
+          </Button>
           <Button type="submit">
             <FontAwesomeIcon icon={faSearch} fixedWidth />
             Pesquisar
