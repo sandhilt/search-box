@@ -1,10 +1,10 @@
 interface ProductMeta {
   score: number;
-  visitsClickCount: number;
+  visitsClickCount: string;
 }
 
 export default interface Product {
-  id: number;
+  id: string;
   name: string;
   type: string;
   _meta: ProductMeta;

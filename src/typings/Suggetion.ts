@@ -1,4 +1,4 @@
 export default interface Suggetion {
-  categories: string;
+  categories: any[];
   term: string;
 }
