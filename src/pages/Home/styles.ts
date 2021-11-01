@@ -18,3 +18,10 @@ export const WrapperBox = styled.section`
   row-gap: 1rem;
   margin: auto;
 `;
+
+export const CardWrapper = styled.div`
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-evenly;
+  max-width: 1024px;
+`;
