@@ -7,10 +7,10 @@ import {
   useRef,
   useState,
 } from 'react';
-import { Button, Input, Datalist, Title, Form } from '../../components';
+import { Button, Input, Datalist, Title, Form, Card } from '../../components';
 import Query from '../../typings/Query';
 import debounce from '../../utils/debounce';
-import { Container, WrapperBox } from './styles';
+import { CardWrapper, Container, WrapperBox } from './styles';
 import { faSearch, faTrash } from '@fortawesome/free-solid-svg-icons';
 import AutoComplete from '../../services/AutoComplete';
 
@@ -35,13 +35,6 @@ function Home(): JSX.Element {
     }
   }, [query]);
 
-  const handleSubmit = useCallback<(event: FormEvent<HTMLFormElement>) => void>(
-    (event) => {
-      event.preventDefault();
-    },
-    [],
-  );
-
   const handleDataSuggestions = useCallback(async () => {
     const text = inputRef.current?.value.trim();
 
@@ -54,15 +47,38 @@ function Home(): JSX.Element {
     }
   }, [query]);
 
-  const debounceHandlerChange = useMemo(
-    () => debounce(handleDataSuggestions, 2000),
+  const handleSubmit = useCallback<(event: FormEvent<HTMLFormElement>) => void>(
+    (event) => {
+      event.preventDefault();
+      handleDataSuggestions();
+    },
     [handleDataSuggestions],
   );
+
+  const debounceHandlerChange = useCallback(() => {
+    return debounce(handleDataSuggestions, 2000);
+  }, [handleDataSuggestions]);
 
   const handleClear = () => {
     setQuery(undefined);
     setData(AutoComplete.defaultValue);
+    service.current.clearCache();
   };
+
+  const cards = useMemo(
+    () =>
+      data.products.map((product) => {
+        console.log({ product });
+        return (
+          <Card key={product.id}>
+            <strong>Nome:</strong> {product.name}
+            <br />
+            <strong>Visitado:</strong> {product._meta.visitsClickCount}
+          </Card>
+        );
+      }),
+    [data.products],
+  );
 
   return (
     <Container>
@@ -88,6 +104,7 @@ function Home(): JSX.Element {
             Pesquisar
           </Button>
         </Form>
+        <CardWrapper>{cards}</CardWrapper>
       </WrapperBox>
     </Container>
   );

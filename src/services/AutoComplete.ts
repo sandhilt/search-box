@@ -112,6 +112,10 @@ class AutoComplete {
     this.latestSearches = this.getOrGenerateCache();
   }
 
+  public clearCache(): void {
+    localStorage.removeItem(AutoComplete.keyLocalStorage);
+  }
+
   public async getSuggestions(query: string): Promise<Query> {
     if (this.isExpires) {
       this.latestSearches = this.getOrGenerateCache();
@@ -133,6 +137,8 @@ class AutoComplete {
 
       const response = await fetch(url.href);
       const value: Query = await response.json();
+
+      value.products.sort((a, b) => b._meta.score - a._meta.score);
 
       this.latestSearches.data.set(query, value);
       this.latestSearches.searchIndexes.add(query);
