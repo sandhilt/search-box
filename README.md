@@ -9,7 +9,7 @@ Você deverá analisar a resposta da API e construir uma ​view ​com a lista 
 
 Projeto foi desenvolvido com Typescript + React.
 
-## Instruções para rodar e explicaç
+## Instruções para rodar e explicação
 1. Instalei o node 16 LTS
 2. Instale as dependências com npm.
 3. Rode o projeto com npm run start.
